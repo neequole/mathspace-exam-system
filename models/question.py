@@ -35,7 +35,7 @@ class Question(object):
     INCORRECT_SCORE_ALGEBRA_SE = 0.33
     INCORRECT_SCORE_ALGEBRA = 0.5
 
-    def __init__(self, topic, subtopic, text, exam=None,
+    def __init__(self, topic, subtopic, text, number, exam=None,
                  num_options=DEFAULT_NUM_OPTIONS,
                  num_valid_options=DEFAULT_NUM_VALID_OPTIONS):
         self.exam = None   # Allow orphaned question
@@ -52,6 +52,7 @@ class Question(object):
                 'Invalid Geometry subtopic: {}'.format(subtopic)
         self.subtopic = subtopic
         self.text = text
+        self.number = int(number)  # TODO: unique validator
         self.num_options = num_options
         self.num_valid_options = num_valid_options
         self.choices = []
@@ -84,6 +85,12 @@ class Question(object):
 
     def score_answer(self, answer):
         if answer in self.valid_choices:
+            return self.correct_score
+        else:
+            return self.incorrect_score
+
+    def score_result(self, result):
+        if result == 'Correct':
             return self.correct_score
         else:
             return self.incorrect_score
