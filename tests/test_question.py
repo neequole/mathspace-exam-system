@@ -9,20 +9,22 @@ QUESTION_TEXT = 'Find x, x^2=4'
 class TestQuestionModel(unittest.TestCase):
     def setUp(self):
         self.test_question = Question(
-            QuestionTopic.ALGEBRA, AlgebraSubTopic.FRACTIONS, QUESTION_TEXT)
+            QuestionTopic.ALGEBRA.value,
+            AlgebraSubTopic.FRACTIONS.value, QUESTION_TEXT)
 
     def test_required_topic(self):
         with self.assertRaises(TypeError):
-            Question(subtopic=AlgebraSubTopic.FRACTIONS, text=QUESTION_TEXT)
+            Question(
+                subtopic=AlgebraSubTopic.FRACTIONS.value, text=QUESTION_TEXT)
 
     def test_required_subtopic(self):
         with self.assertRaises(TypeError):
-            Question(topic=QuestionTopic.ALGEBRA, text=QUESTION_TEXT)
+            Question(topic=QuestionTopic.ALGEBRA.value, text=QUESTION_TEXT)
 
     def test_required_text(self):
         with self.assertRaises(TypeError):
-            Question(topic=QuestionTopic.ALGEBRA,
-                     subtopic=AlgebraSubTopic.FRACTIONS)
+            Question(topic=QuestionTopic.ALGEBRA.value,
+                     subtopic=AlgebraSubTopic.FRACTIONS.value)
 
     def test_default_exam(self):
         self.assertIsNone(self.test_question.exam)
@@ -39,10 +41,22 @@ class TestQuestionModel(unittest.TestCase):
     def test_default_choices(self):
         self.assertEqual(self.test_question.choices, [])
 
+    def test_invalid_topic(self):
+        with self.assertRaises(AssertionError):
+            Question('Geography', AlgebraSubTopic.FRACTIONS.value,
+                     QUESTION_TEXT)
+
+    def test_invalid_algebra_topic(self):
+        with self.assertRaises(AssertionError):
+            Question(QuestionTopic.ALGEBRA.value, 'Addition', QUESTION_TEXT)
+
+    def test_invalid_geometry_topic(self):
+        with self.assertRaises(AssertionError):
+            Question(QuestionTopic.GEOMETRY.value, 'Map', QUESTION_TEXT)
+
     def test_valid_choices(self):
         self.assertEqual(self.test_question.valid_choices, [])
-        valid_choice = Choice('Test choice', question=self.test_question,
-                              is_valid=True)
+        valid_choice = Choice('Test choice', is_valid=True)
         self.test_question.add_choice(valid_choice)
         self.assertIn(valid_choice, self.test_question.valid_choices)
 
@@ -52,7 +66,7 @@ class TestQuestionModel(unittest.TestCase):
 
     def test_incorrect_score_geometry(self):
         geometry_question = Question(
-            QuestionTopic.GEOMETRY, GeometrySubTopic.CIRCLES,
+            QuestionTopic.GEOMETRY.value, GeometrySubTopic.CIRCLES.value,
             'Parallel lines:')
         self.assertEqual(geometry_question.incorrect_score,
                          Question.INCORRECT_SCORE_GEOMETRY)
@@ -64,16 +78,34 @@ class TestQuestionModel(unittest.TestCase):
 
     def test_incorrect_score_algebra_se(self):
         algebra_se_question = Question(
-            QuestionTopic.ALGEBRA, AlgebraSubTopic.SIMULTANEOUS_EQ,
+            QuestionTopic.ALGEBRA.value, AlgebraSubTopic.SIMULTANEOUS_EQ.value,
             'Solve x+y=10, x-y=4')
         self.assertEqual(algebra_se_question.incorrect_score,
                          Question.INCORRECT_SCORE_ALGEBRA_SE)
 
-    def test_add_choice(self):
+    def test_add_choice_success(self):
         test_choice = Choice('Test choice')
         self.test_question.add_choice(test_choice)
         self.assertEqual(test_choice.question, self.test_question)
         self.assertEqual(len(self.test_question.choices), 1)
+
+    def test_add_choice_max_choices_reached(self):
+        test_question = Question(
+            QuestionTopic.ALGEBRA.value,
+            AlgebraSubTopic.FRACTIONS.value, QUESTION_TEXT, num_options=1)
+        test_choice = Choice('Test choice', question=test_question)
+        with self.assertRaises(AssertionError):
+            test_question.add_choice(test_choice)
+
+    def test_add_choice_max_valid_choices_reached(self):
+        test_question = Question(
+            QuestionTopic.ALGEBRA.value,
+            AlgebraSubTopic.FRACTIONS.value, QUESTION_TEXT, num_options=2,
+            num_valid_options=1)
+        test_choice = Choice(
+            'Test choice', question=test_question, is_valid=True)
+        with self.assertRaises(AssertionError):
+            test_question.add_choice(test_choice)
 
     def test_score_correct_answer(self):
         valid_choice = Choice('Test choice', question=self.test_question,

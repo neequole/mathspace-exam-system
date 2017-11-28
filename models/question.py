@@ -1,18 +1,28 @@
 from enum import Enum
 
 
-class QuestionTopic(Enum):
+class CustomEnum(Enum):
+    @classmethod
+    def has_value(cls, value):
+        # Credit to https://stackoverflow.com/questions/43634618/how-do-i-test-if-int-value-exists-in-python-enum-without-using-try-catch
+        for item in cls:
+            if item.value == value:
+                return True
+        return False
+
+
+class QuestionTopic(CustomEnum):
     ALGEBRA = 'Algebra'
     GEOMETRY = 'Geometry'
 
 
-class AlgebraSubTopic(Enum):
+class AlgebraSubTopic(CustomEnum):
     FRACTIONS = 'Fractions'
     QUADRATIC_EQ = 'Quadratic Equations'
     SIMULTANEOUS_EQ = 'Simultaneous Equations'
 
 
-class GeometrySubTopic(Enum):
+class GeometrySubTopic(CustomEnum):
     PARALLEL_LINES = 'Parallel Lines'
     CIRCLES = 'Circles'
 
@@ -28,11 +38,18 @@ class Question(object):
     def __init__(self, topic, subtopic, text, exam=None,
                  num_options=DEFAULT_NUM_OPTIONS,
                  num_valid_options=DEFAULT_NUM_VALID_OPTIONS):
-        self.exam = exam  # Allow orphaned question
-        if self.exam:
+        self.exam = None   # Allow orphaned question
+        if exam:
             exam.add_question(self)
-        self.topic = topic  # TODO: Should be member of QuestionTopic
-        self.subtopic = subtopic  # TODO: Should be member of SubTopic
+        assert QuestionTopic.has_value(topic), 'Invalid topic'
+        self.topic = topic
+        if self.topic == QuestionTopic.ALGEBRA.value:
+            assert AlgebraSubTopic.has_value(subtopic), \
+                'Invalid Algebra subtopic'
+        else:
+            assert GeometrySubTopic.has_value(subtopic), \
+                'Invalid Geometry subtopic'
+        self.subtopic = subtopic
         self.text = text
         self.num_options = num_options
         self.num_valid_options = num_valid_options
@@ -48,16 +65,20 @@ class Question(object):
 
     @property
     def incorrect_score(self):
-        if self.topic == QuestionTopic.GEOMETRY:
+        if self.topic == QuestionTopic.GEOMETRY.value:
             return self.INCORRECT_SCORE_GEOMETRY
-        elif self.topic == QuestionTopic.ALGEBRA:
-            if self.subtopic == AlgebraSubTopic.SIMULTANEOUS_EQ:
+        elif self.topic == QuestionTopic.ALGEBRA.value:
+            if self.subtopic == AlgebraSubTopic.SIMULTANEOUS_EQ.value:
                 return self.INCORRECT_SCORE_ALGEBRA_SE
             else:
                 return self.INCORRECT_SCORE_ALGEBRA
 
     def add_choice(self, choice):
-        choice.question = self  # TODO: Validate num_options/num_valid_options
+        assert len(self.choices) < self.num_options, \
+            'Max no of options reached'
+        assert len(self.valid_choices) < self.num_valid_options, \
+            'Max no of valid options reached'
+        choice.question = self
         self.choices.append(choice)
 
     def score_answer(self, answer):

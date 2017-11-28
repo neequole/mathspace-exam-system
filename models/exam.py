@@ -8,8 +8,13 @@ class Exam(object):
         self.questions = []
 
     def add_question(self, question):
-        question.exam = self  # TODO: validate number of question
+        assert len(self.questions) < self.num_questions, \
+            'Max no. of questions reached'
+        question.exam = self
         self.questions.append(question)
 
     def get_min_possible_mark(self):
-        pass
+        total = 0
+        for question in self.questions:
+            total += question.incorrect_score
+        return total
