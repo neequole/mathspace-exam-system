@@ -41,14 +41,15 @@ class Question(object):
         self.exam = None   # Allow orphaned question
         if exam:
             exam.add_question(self)
-        assert QuestionTopic.has_value(topic), 'Invalid topic'
+        assert QuestionTopic.has_value(topic), \
+            'Invalid topic: {}'.format(topic)
         self.topic = topic
         if self.topic == QuestionTopic.ALGEBRA.value:
             assert AlgebraSubTopic.has_value(subtopic), \
-                'Invalid Algebra subtopic'
+                'Invalid Algebra subtopic: {}'.format(subtopic)
         else:
             assert GeometrySubTopic.has_value(subtopic), \
-                'Invalid Geometry subtopic'
+                'Invalid Geometry subtopic: {}'.format(subtopic)
         self.subtopic = subtopic
         self.text = text
         self.num_options = num_options

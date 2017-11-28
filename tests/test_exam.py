@@ -57,3 +57,8 @@ class TestExamModel(unittest.TestCase):
                  'dummy', exam=test_exam)  # 0
         min_mark = 0.5 + 0.5 + 0.33 + 0.33 + 0
         self.assertEqual(test_exam.get_min_possible_mark(), min_mark)
+
+    def test_get_min_possible_mark_from_csv(self):
+        test_exam = Exam('Test CSV Exam', '2017-10-10')
+        test_exam.import_from_csv('revision_exam_20171010.csv')
+        self.assertEqual(test_exam.get_min_possible_mark(), 2.66)
