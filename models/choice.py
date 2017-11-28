@@ -1,5 +1,7 @@
 class Choice(object):
-    def __init__(self, question, text, is_valid=False):
-        self.question = question
+    def __init__(self, text, question=None, is_valid=False):
         self.text = text
+        self.question = question  # Allow orphaned choice
+        if self.question:
+            question.add_choice(self)
         self.is_valid = is_valid

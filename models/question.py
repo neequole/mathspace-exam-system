@@ -18,9 +18,19 @@ class GeometrySubTopic(Enum):
 
 
 class Question(object):
-    def __init__(self, topic, subtopic, text, exam=None, num_options=2,
-                 num_valid_options=1):
+    DEFAULT_NUM_OPTIONS = 2
+    DEFAULT_NUM_VALID_OPTIONS = 1
+    CORRECT_SCORE_DEFAULT = 1
+    INCORRECT_SCORE_GEOMETRY = 0
+    INCORRECT_SCORE_ALGEBRA_SE = 0.33
+    INCORRECT_SCORE_ALGEBRA = 0.5
+
+    def __init__(self, topic, subtopic, text, exam=None,
+                 num_options=DEFAULT_NUM_OPTIONS,
+                 num_valid_options=DEFAULT_NUM_VALID_OPTIONS):
         self.exam = exam  # Allow orphaned question
+        if self.exam:
+            exam.add_question(self)
         self.topic = topic  # TODO: Should be member of QuestionTopic
         self.subtopic = subtopic  # TODO: Should be member of SubTopic
         self.text = text
@@ -34,25 +44,23 @@ class Question(object):
 
     @property
     def correct_score(self):
-        return 1
+        return self.CORRECT_SCORE_DEFAULT
 
     @property
     def incorrect_score(self):
         if self.topic == QuestionTopic.GEOMETRY:
-            return 0
+            return self.INCORRECT_SCORE_GEOMETRY
         elif self.topic == QuestionTopic.ALGEBRA:
             if self.subtopic == AlgebraSubTopic.SIMULTANEOUS_EQ:
-                return 0.33
+                return self.INCORRECT_SCORE_ALGEBRA_SE
             else:
-                return 0.5
-        else:
-            return 0
+                return self.INCORRECT_SCORE_ALGEBRA
 
     def add_choice(self, choice):
         choice.question = self  # TODO: Validate num_options/num_valid_options
         self.choices.append(choice)
 
-    def check_answer(self, answer):
+    def score_answer(self, answer):
         if answer in self.valid_choices:
             return self.correct_score
         else:
