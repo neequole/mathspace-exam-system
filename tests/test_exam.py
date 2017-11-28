@@ -42,3 +42,18 @@ class TestExamModel(unittest.TestCase):
         test_exam.add_question(test_question)
         with self.assertRaises(AssertionError):
             test_exam.add_question(test_question)
+
+    def test_get_min_possible_mark(self):
+        test_exam = Exam(EXAM_NAME, EXAM_DATE)
+        Question(QuestionTopic.ALGEBRA.value, AlgebraSubTopic.FRACTIONS.value,
+                 'dummy', exam=test_exam)  # 0.5
+        Question(QuestionTopic.ALGEBRA.value, AlgebraSubTopic.QUADRATIC_EQ.value,
+                 'dummy', exam=test_exam)  # 0.5
+        Question(QuestionTopic.ALGEBRA.value, AlgebraSubTopic.SIMULTANEOUS_EQ.value,
+                 'dummy', exam=test_exam)  # 0.33
+        Question(QuestionTopic.ALGEBRA.value, AlgebraSubTopic.SIMULTANEOUS_EQ.value,
+                 'dummy', exam=test_exam)  # 0.33
+        Question(QuestionTopic.GEOMETRY.value, GeometrySubTopic.CIRCLES.value,
+                 'dummy', exam=test_exam)  # 0
+        min_mark = 0.5 + 0.5 + 0.33 + 0.33 + 0
+        self.assertEqual(test_exam.get_min_possible_mark(), min_mark)
