@@ -72,3 +72,24 @@ class Exam(object):
                 current_score = self.mark.setdefault(row['Student Number'], 0)
                 self.mark[row['Student Number']] = \
                     current_score + question.score_result(row['Result'])
+
+    def get_average_mark(self):
+        total = 0
+        for score in self.mark.values():
+            total += score
+        return total / len(self.mark)
+
+    def print_statistics(self):
+        min_possible_mark = self.get_min_possible_mark()
+        for student, score in self.mark.items():
+            percentage = (score / self.num_questions) * 100
+            is_above_min_possible_mark = score > min_possible_mark
+            if percentage > 50 or is_above_min_possible_mark:
+                result = 'Passed'
+            else:
+                result = 'Failed'
+            print('Student {} | {} | {}% | {} | {}'.format(
+                student, score, percentage, is_above_min_possible_mark,
+                result))
+        print('----')
+        print('Class Average Mark:  {}'.format(self.get_average_mark()))

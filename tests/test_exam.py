@@ -75,3 +75,10 @@ class TestExamModel(unittest.TestCase):
                          sum([1, 1, 0.33, 1, 0.5, 1, 0, 1, 1, 0.5]))
         self.assertEqual(test_exam.mark['10005'],
                          test_exam.get_min_possible_mark())
+
+    def test_get_average_mark(self):
+        test_exam = Exam('Test CSV Exam', '2017-10-10')
+        test_exam.import_from_csv('revision_exam_20171010.csv')
+        test_exam.mark_result('revision_exam_answers.csv')
+        marks = [7.33, 8.0,  7.33, 8, 2.66]
+        self.assertEqual(test_exam.get_average_mark(), sum(marks)/len(marks))
