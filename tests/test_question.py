@@ -107,10 +107,11 @@ class TestQuestionModel(unittest.TestCase):
     def test_add_choice_max_valid_choices_reached(self):
         test_question = Question(
             QuestionTopic.ALGEBRA.value,
-            AlgebraSubTopic.FRACTIONS.value, QUESTION_TEXT, 1, num_options=2,
+            AlgebraSubTopic.FRACTIONS.value, QUESTION_TEXT, 1, num_options=3,
             num_valid_options=1)
         test_choice = Choice(
-            'Test choice', question=test_question, is_valid=True)
+            'Test valid choice', question=test_question, is_valid=True)
+        Choice('Test invalid choice', question=test_question)
         with self.assertRaises(AssertionError):
             test_question.add_choice(test_choice)
 
