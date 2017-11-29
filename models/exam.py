@@ -5,14 +5,14 @@ from .question import Question
 
 
 class Exam(object):
-    DEFAULT_NUM_QUESTIONS = 10
+    DEFAULT_NUM_QUESTIONS = 10   # Max allowed number of questions per exam
 
     def __init__(self, name, exam_date, num_questions=DEFAULT_NUM_QUESTIONS):
         self.name = name
         self.exam_date = exam_date  # TODO: date validation
         self.num_questions = num_questions
-        self.questions = []
-        self.mark = {}
+        self.questions = []   # Stores the exam questions
+        self.mark = {}  # Stores student markings
 
     def add_question(self, question):
         assert len(self.questions) < self.num_questions, \

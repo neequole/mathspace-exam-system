@@ -28,8 +28,8 @@ class GeometrySubTopic(CustomEnum):
 
 
 class Question(object):
-    DEFAULT_NUM_OPTIONS = 2
-    DEFAULT_NUM_VALID_OPTIONS = 1
+    DEFAULT_NUM_OPTIONS = 2   # Max allowed number of multiple choice
+    DEFAULT_NUM_VALID_OPTIONS = 1  # Max allowed number of valid multiple choice
     CORRECT_SCORE_DEFAULT = 1
     INCORRECT_SCORE_GEOMETRY = 0
     INCORRECT_SCORE_ALGEBRA_SE = 0.33
@@ -55,7 +55,7 @@ class Question(object):
         self.number = int(number)  # TODO: unique validator
         self.num_options = num_options
         self.num_valid_options = num_valid_options
-        self.choices = []
+        self.choices = []   # Stores the choices for a question
 
     @property
     def valid_choices(self):
@@ -78,8 +78,9 @@ class Question(object):
     def add_choice(self, choice):
         assert len(self.choices) < self.num_options, \
             'Max no of options reached'
-        assert len(self.valid_choices) < self.num_valid_options, \
-            'Max no of valid options reached'
+        if choice.is_valid:
+            assert len(self.valid_choices) < self.num_valid_options, \
+                'Max no of valid options reached'
         choice.question = self
         self.choices.append(choice)
 
